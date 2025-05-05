@@ -103,6 +103,7 @@ export default function RentalPaymentSystem() {
     })
   }
 
+  // Modificar a função handleShareWhatsApp para incluir a descrição das outras despesas
   const handleShareWhatsApp = () => {
     const total = calculateTotal()
     const message = `
@@ -116,15 +117,16 @@ Condomínio: ${formatCurrency(paymentData.condoFee)}
 Luz: ${formatCurrency(paymentData.electricityBill)}
 IPTU: ${formatCurrency(paymentData.propertyTax)}
 Taxa de Administração: -${formatCurrency(paymentData.managementFee)}
-${paymentData.otherExpenses > 0 ? `Outras despesas (${paymentData.otherExpensesDescription}): ${formatCurrency(paymentData.otherExpenses)}` : ""}
+${paymentData.otherExpenses > 0 ? `Outras despesas: ${formatCurrency(paymentData.otherExpenses)}${paymentData.otherExpensesDescription ? `\nDescrição: ${paymentData.otherExpensesDescription}` : ""}` : ""}
 
 *Total a pagar: ${formatCurrency(total)}*
-    `.trim()
+  `.trim()
 
     const encodedMessage = encodeURIComponent(message)
     window.open(`https://wa.me/?text=${encodedMessage}`, "_blank")
   }
 
+  // Modificar a função handleShareEmail para incluir a descrição das outras despesas
   const handleShareEmail = () => {
     const total = calculateTotal()
     const subject = `Detalhamento de Pagamento - ${paymentData.month}`
@@ -139,10 +141,10 @@ Condomínio: ${formatCurrency(paymentData.condoFee)}
 Luz: ${formatCurrency(paymentData.electricityBill)}
 IPTU: ${formatCurrency(paymentData.propertyTax)}
 Taxa de Administração: -${formatCurrency(paymentData.managementFee)}
-${paymentData.otherExpenses > 0 ? `Outras despesas (${paymentData.otherExpensesDescription}): ${formatCurrency(paymentData.otherExpenses)}` : ""}
+${paymentData.otherExpenses > 0 ? `Outras despesas: ${formatCurrency(paymentData.otherExpenses)}${paymentData.otherExpensesDescription ? `\nDescrição: ${paymentData.otherExpensesDescription}` : ""}` : ""}
 
 Total a pagar: ${formatCurrency(total)}
-    `.trim()
+  `.trim()
 
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }
