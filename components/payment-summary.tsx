@@ -12,6 +12,21 @@ export default function PaymentSummary({ data, total }: PaymentSummaryProps) {
     ? data.propertyTax
     : Math.round((data.propertyTax / 12) * 100) / 100
 
+  // Calcular o total das deduções (todos os valores exceto o aluguel)
+  // A taxa de administração agora é tratada separadamente
+  const deductions =
+    Math.round(
+      (data.condoFee +
+        data.waterFee +
+        data.electricityBill +
+        (data.isPropertyTaxMonthly ? data.propertyTax : monthlyPropertyTax) +
+        data.otherExpenses) *
+        100,
+    ) / 100
+
+  // Calcular o valor líquido do aluguel após deduções e taxa de administração
+  const netRent = Math.max(0, Math.round((data.rentValue - deductions - data.managementFee) * 100) / 100)
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -72,7 +87,7 @@ export default function PaymentSummary({ data, total }: PaymentSummaryProps) {
         {data.managementFee > 0 && (
           <div className="flex justify-between text-sm">
             <span>Taxa de Administração:</span>
-            <span>{formatCurrency(data.managementFee)}</span>
+            <span className="text-red-600">- {formatCurrency(data.managementFee)}</span>
           </div>
         )}
 
@@ -95,6 +110,33 @@ export default function PaymentSummary({ data, total }: PaymentSummaryProps) {
           <span>{formatCurrency(total)}</span>
         </div>
       </div>
+
+      {/* Seção de deduções do aluguel */}
+      {data.rentValue > 0 && (deductions > 0 || data.managementFee > 0) && (
+        <div className="border-t pt-2 mt-4 space-y-2 bg-gray-50 p-2 rounded-md">
+          <h3 className="text-sm font-semibold">Deduções do Aluguel</h3>
+          <div className="flex justify-between text-sm">
+            <span>Valor do Aluguel:</span>
+            <span>{formatCurrency(data.rentValue)}</span>
+          </div>
+          {deductions > 0 && (
+            <div className="flex justify-between text-sm">
+              <span>Despesas:</span>
+              <span className="text-red-600">- {formatCurrency(deductions)}</span>
+            </div>
+          )}
+          {data.managementFee > 0 && (
+            <div className="flex justify-between text-sm">
+              <span>Taxa de Administração:</span>
+              <span className="text-red-600">- {formatCurrency(data.managementFee)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm font-medium border-t pt-1">
+            <span>Valor Líquido:</span>
+            <span className={netRent > 0 ? "text-green-600" : "text-red-600"}>{formatCurrency(netRent)}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

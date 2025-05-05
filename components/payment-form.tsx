@@ -168,6 +168,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
             value={data.managementFee === 0 ? "" : data.managementFee}
             onChange={handleInputChange}
           />
+          <p className="text-xs text-muted-foreground mt-1">Este valor será deduzido do total.</p>
         </div>
       </div>
 

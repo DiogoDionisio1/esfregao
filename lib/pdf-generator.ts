@@ -10,6 +10,20 @@ export async function generatePDF(data: PaymentData, total: number) {
     ? data.propertyTax
     : Number.parseFloat((data.propertyTax / 12).toFixed(2))
 
+  // Calcular o total das deduções (todos os valores exceto o aluguel e taxa de administração)
+  const deductions =
+    Math.round(
+      (data.condoFee +
+        data.waterFee +
+        data.electricityBill +
+        (data.isPropertyTaxMonthly ? data.propertyTax : monthlyPropertyTax) +
+        data.otherExpenses) *
+        100,
+    ) / 100
+
+  // Calcular o valor líquido do aluguel após deduções e taxa de administração
+  const netRent = Math.max(0, Math.round((data.rentValue - deductions - data.managementFee) * 100) / 100)
+
   // Criar um elemento temporário para o PDF
   const element = document.createElement("div")
   element.style.padding = "20px"
@@ -91,7 +105,7 @@ export async function generatePDF(data: PaymentData, total: number) {
           ? `
         <tr>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;">Taxa de Administração</td>
-          <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">${formatCurrency(data.managementFee)}</td>
+          <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd; color: #e53e3e;">- ${formatCurrency(data.managementFee)}</td>
         </tr>
       `
           : ""
@@ -118,6 +132,48 @@ export async function generatePDF(data: PaymentData, total: number) {
         <td style="text-align: right; padding: 8px;">${formatCurrency(total)}</td>
       </tr>
     </table>
+
+    ${
+      data.rentValue > 0 && (deductions > 0 || data.managementFee > 0)
+        ? `
+    <div style="margin-top: 20px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background-color: #f9f9f9;">
+      <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 14px;">Deduções do Aluguel</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 4px 0;">Valor do Aluguel:</td>
+          <td style="text-align: right; padding: 4px 0;">${formatCurrency(data.rentValue)}</td>
+        </tr>
+        ${
+          deductions > 0
+            ? `
+        <tr>
+          <td style="padding: 4px 0;">Despesas:</td>
+          <td style="text-align: right; padding: 4px 0; color: #e53e3e;">- ${formatCurrency(deductions)}</td>
+        </tr>
+        `
+            : ""
+        }
+        ${
+          data.managementFee > 0
+            ? `
+        <tr>
+          <td style="padding: 4px 0;">Taxa de Administração:</td>
+          <td style="text-align: right; padding: 4px 0; color: #e53e3e;">- ${formatCurrency(data.managementFee)}</td>
+        </tr>
+        `
+            : ""
+        }
+        <tr style="border-top: 1px solid #ddd;">
+          <td style="padding: 4px 0; font-weight: bold;">Valor Líquido:</td>
+          <td style="text-align: right; padding: 4px 0; font-weight: bold; color: ${
+            netRent > 0 ? "#2f855a" : "#e53e3e"
+          };">${formatCurrency(netRent)}</td>
+        </tr>
+      </table>
+    </div>
+    `
+        : ""
+    }
   `
 
   // Configurações do PDF

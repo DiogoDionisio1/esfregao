@@ -65,7 +65,8 @@ export default function RentalPaymentSystem() {
     const other = Number(otherExpenses || 0)
 
     // Calcular o total com alta precisão e depois arredondar para 2 casas decimais
-    const sum = rent + condo + water + electricity + tax + management + other
+    // A taxa de administração agora é SUBTRAÍDA do total
+    const sum = rent + condo + water + electricity + tax - management + other
     return Math.round(sum * 100) / 100
   }
 
@@ -114,7 +115,7 @@ Condomínio: ${formatCurrency(paymentData.condoFee)}
 Água: ${formatCurrency(paymentData.waterFee)}
 Luz: ${formatCurrency(paymentData.electricityBill)}
 IPTU: ${formatCurrency(paymentData.propertyTax)}
-Taxa de Administração: ${formatCurrency(paymentData.managementFee)}
+Taxa de Administração: -${formatCurrency(paymentData.managementFee)}
 ${paymentData.otherExpenses > 0 ? `Outras despesas (${paymentData.otherExpensesDescription}): ${formatCurrency(paymentData.otherExpenses)}` : ""}
 
 *Total a pagar: ${formatCurrency(total)}*
@@ -137,7 +138,7 @@ Condomínio: ${formatCurrency(paymentData.condoFee)}
 Água: ${formatCurrency(paymentData.waterFee)}
 Luz: ${formatCurrency(paymentData.electricityBill)}
 IPTU: ${formatCurrency(paymentData.propertyTax)}
-Taxa de Administração: ${formatCurrency(paymentData.managementFee)}
+Taxa de Administração: -${formatCurrency(paymentData.managementFee)}
 ${paymentData.otherExpenses > 0 ? `Outras despesas (${paymentData.otherExpensesDescription}): ${formatCurrency(paymentData.otherExpenses)}` : ""}
 
 Total a pagar: ${formatCurrency(total)}
