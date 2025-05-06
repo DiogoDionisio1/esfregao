@@ -15,7 +15,7 @@ export interface PaymentData {
 
 export interface HistoryEntry {
   id: string
-  date: string
-  paymentData: PaymentData
+  date: number
   total: number
+  paymentData: PaymentData
 }
